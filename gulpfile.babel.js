@@ -1,9 +1,9 @@
-import gulp from 'gulp';
-import babel from 'gulp-babel';
-import mocha from 'gulp-mocha';
+import * as gulp from 'gulp';
+import * as babel from 'gulp-babel';
+import * as mocha from 'gulp-mocha';
 import jshint from 'gulp-jshint';
-import del from 'del';
-import runSequence from 'run-sequence';
+import * as del from 'del';
+import * as runSequence from 'run-sequence';
 
 var config = {
   paths: {
