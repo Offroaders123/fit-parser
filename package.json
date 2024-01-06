@@ -25,7 +25,6 @@
     "@types/gulp-mocha": "^0.0.37",
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.10.6",
-    "@types/run-sequence": "^0.0.34",
     "babel": "^6.23.0",
     "babel-core": "^6.26.3",
     "babel-polyfill": "^6.26.0",
@@ -42,9 +41,9 @@
     "gulp-babel": "^8.0.0",
     "gulp-jshint": "^2.1.0",
     "gulp-mocha": "^9.0.0",
+    "gulp4-run-sequence": "^1.0.2",
     "jshint": "^2.13.6",
-    "mocha": "^10.2.0",
-    "run-sequence": "^2.2.1"
+    "mocha": "^10.2.0"
   },
   "directories": {},
   "engine": "node >= 0.10.x",
