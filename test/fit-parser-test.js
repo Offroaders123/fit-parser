@@ -1,6 +1,6 @@
-import FitParser from '../dist/fit-parser.js';
+import FitParser from '../src/fit-parser';
 import { expect } from 'chai';
-import fs from 'fs';
+import * as fs from 'fs';
 
 describe('fit parser tests', function () {
     it('expects to retrieve a FIT object', function (done) {
