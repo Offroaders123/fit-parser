@@ -1,7 +1,19 @@
 import { getArrayBuffer, calculateCRC, readRecord } from './binary.js';
 import { mapDataIntoSession, mapDataIntoLap } from './helper.js';
+
+export interface FitParserOptions {
+  force?: boolean;
+  speedUnit?: "m/s" | "km/h" | "mph";
+  lengthUnit?: "m" | "km" | "mi";
+  temperatureUnit?: "celsius" | "kelvin" | "fahrenheit";
+  elapsedRecordField?: boolean;
+  mode?: "cascade" | "list" | "both";
+}
+
 export default class FitParser {
-  constructor(options = {}) {
+  declare options: FitParserOptions;
+
+  constructor(options: FitParserOptions = {}) {
     this.options = {
       force: options.force != null ? options.force : true,
       speedUnit: options.speedUnit || 'm/s',
@@ -12,7 +24,7 @@ export default class FitParser {
     };
   }
 
-  parse(content, callback) {
+  parse(content: Uint8Array | ArrayBuffer, callback: (error: string | null, value: object) => void): void {
     const blob = new Uint8Array(getArrayBuffer(content));
 
     if (blob.length < 12) {

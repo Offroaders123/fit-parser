@@ -4241,20 +4241,26 @@ export const FIT = {
       12: 'assioma_duo',
     }
   },
+} as const;
+
+export type FitMessageNameMap = {
+  [K in keyof typeof FIT.messages]: typeof FIT.messages[K];
 };
 
-export function getMessageName(messageNum) {
+export type FitMessage<K extends keyof FitMessageNameMap = keyof FitMessageNameMap> = FitMessageNameMap[K];
+
+export function getMessageName<K extends keyof FitMessageNameMap>(messageNum: K): FitMessageNameMap[K]["name"] | "" {
   const message = FIT.messages[messageNum];
   return message ? message.name : '';
 }
 
-export function getFieldObject(fieldNum, messageNum) {
-  const message = FIT.messages[messageNum];
+export function getFieldObject<K extends keyof FitMessageNameMap>(fieldNum: keyof FitMessage<K>, messageNum: K): FitMessage<K>[keyof FitMessage<K>] | object | "" {
+  const message: FitMessage<K> | undefined = FIT.messages[messageNum];
   if (!message) {
     return '';
   }
-  const fieldObj = message[fieldNum];
-  return fieldObj ? fieldObj : {};
+  const fieldObj: FitMessage<K>[keyof FitMessage<K>] | undefined = message[fieldNum];
+  return fieldObj ? fieldObj : {} as object;
 }
 
 

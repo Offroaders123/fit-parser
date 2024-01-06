@@ -2,7 +2,7 @@ import { FIT } from './fit.js';
 import { getFitMessage, getFitMessageBaseType } from './messages.js';
 import { Buffer } from 'node:buffer';
 
-export function addEndian(littleEndian, bytes) {
+export function addEndian(littleEndian: boolean, bytes: number[]): number {
     let result = 0;
     if (!littleEndian) bytes.reverse();
     for (let i = 0; i < bytes.length; i++) {
@@ -20,9 +20,9 @@ const CompressedHeaderMask = 0x80;
 const GarminTimeOffset = 631065600000;
 let monitoring_timestamp = 0;
 
-function readData(blob, fDef, startIndex, options) {
+function readData(blob: Uint8Array, fDef, startIndex, options) {
     if (fDef.endianAbility === true) {
-        const temp = [];
+        const temp: number[] = [];
         for (let i = 0; i < fDef.size; i++) {
             temp.push(blob[startIndex + i]);
         }
@@ -223,14 +223,14 @@ function applyOptions(data, field, options) {
     }
 }
 
-export function readRecord(blob, messageTypes, developerFields, startIndex, options, startDate, pausedTime) {
-    const recordHeader = blob[startIndex];
-    let localMessageType = recordHeader & 15;
+export function readRecord(blob: Uint8Array, messageTypes, developerFields, startIndex, options, startDate, pausedTime) {
+    const recordHeader: number = blob[startIndex];
+    let localMessageType: number = recordHeader & 15;
 
     if((recordHeader & CompressedHeaderMask) === CompressedHeaderMask){
         //compressed timestamp
 
-        var timeoffset = recordHeader & CompressedTimeMask;
+        var timeoffset: number = recordHeader & CompressedTimeMask;
         timestamp += ((timeoffset - lastTimeOffset) & CompressedTimeMask);
         lastTimeOffset = timeoffset;
 
@@ -239,10 +239,10 @@ export function readRecord(blob, messageTypes, developerFields, startIndex, opti
         // is definition message
         // startIndex + 1 is reserved
 
-        const hasDeveloperData = (recordHeader & 32) === 32;
-        const lEnd = blob[startIndex + 2] === 0;
-        const numberOfFields = blob[startIndex + 5];
-        const numberOfDeveloperDataFields = hasDeveloperData ? blob[startIndex + 5 + numberOfFields * 3 + 1] : 0;
+        const hasDeveloperData: boolean = (recordHeader & 32) === 32;
+        const lEnd: boolean = blob[startIndex + 2] === 0;
+        const numberOfFields: number = blob[startIndex + 5];
+        const numberOfDeveloperDataFields: number = hasDeveloperData ? blob[startIndex + 5 + numberOfFields * 3 + 1] : 0;
 
         const mTypeDef = {
             littleEndian: lEnd,
@@ -283,7 +283,7 @@ export function readRecord(blob, messageTypes, developerFields, startIndex, opti
 
                 const devDef = developerFields[devDataIndex][fieldNum];
 
-                const baseType = devDef.fit_base_type_id;
+                const baseType: keyof typeof FIT.types.fit_base_type = devDef.fit_base_type_id;
 
                 const fDef = {
                     type: FIT.types.fit_base_type[baseType],
@@ -388,7 +388,7 @@ export function readRecord(blob, messageTypes, developerFields, startIndex, opti
     return result;
 }
 
-export function getArrayBuffer(buffer) {
+export function getArrayBuffer(buffer: Uint8Array | ArrayBuffer): ArrayBuffer {
     if (buffer instanceof ArrayBuffer) {
         return buffer;
     }
