@@ -30,12 +30,10 @@ node_modules
 npm-debug.log
 
 # src and tests folder
-src/
-test/
-test-dist/
-examples/
-.babelrc
+/src
+/test
+/examples
+tsconfig.json
+tsconfig.build.json
 .eslintignore
 .eslintrc
-gulpfile.babel.js
-

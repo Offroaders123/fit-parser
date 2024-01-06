@@ -14,11 +14,5 @@
     "allowUnreachableCode": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true
-  },
-  "exclude": [
-    "dist/*",
-    // "examples/*",
-    // "test/*",
-    "test-dist/*"
-  ]
+  }
 }

@@ -1,3 +1,9 @@
-node_modules/
+.DS_Store
+._*
+Desktop.ini
+Thumbs.db
 .idea
 .directory
+
+/node_modules
+/dist
