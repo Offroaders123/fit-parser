@@ -7,7 +7,9 @@ export function getFitMessage(messageNum) {
   };
 }
 
-// TODO
-export function getFitMessageBaseType(foo) {
+/**
+ * TODO
+*/
+export function getFitMessageBaseType<K>(foo: K): K {
   return foo;
 }

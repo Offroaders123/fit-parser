@@ -2,6 +2,8 @@ import { FIT } from './fit.js';
 import { getFitMessage, getFitMessageBaseType } from './messages.js';
 import { Buffer } from 'node:buffer';
 
+import type { FitParserOptions } from './fit-parser.js';
+
 export function addEndian(littleEndian: boolean, bytes: number[]): number {
     let result = 0;
     if (!littleEndian) bytes.reverse();
@@ -20,7 +22,49 @@ const CompressedHeaderMask = 0x80;
 const GarminTimeOffset = 631065600000;
 let monitoring_timestamp = 0;
 
-function readData(blob: Uint8Array, fDef, startIndex, options) {
+export interface FDef<K extends keyof FDefTypeNameMap = keyof FDefTypeNameMap> {
+    type: K;
+    fDefNo: number;
+    size: number;
+    endianAbility: boolean;
+    littleEndian: boolean;
+    baseTypeNo: number;
+    name: string & { _temp: unknown; };
+    dataType: number;
+    scale?: number;
+    offset?: number;
+    developerDataIndex?: number;
+    isDeveloperField?: boolean;
+}
+
+/**
+ * I'm not sure if this is the correct reference, but it seems to overlap mostly.
+ * 
+ * {@link FIT.types.fit_base_type}
+*/
+export interface FDefTypeNameMap {
+    // enum: ;
+    sint8: number;
+    uint8: number;
+    string: string;
+    uint8z: number;
+    byte: number;
+    sint16: number;
+    uint16: number;
+    sint32: number;
+    uint32: number;
+    float32: number;
+    float64: number;
+    uint16z: number;
+    uint32z: number;
+    sint64: number;
+    uint64: number;
+    uint64z: number;
+    uint32_array: number[];
+    uint16_array: number[];
+}
+
+function readData<K extends keyof FDefTypeNameMap>(blob: Uint8Array, fDef: FDef<K>, startIndex, options) {
     if (fDef.endianAbility === true) {
         const temp: number[] = [];
         for (let i = 0; i < fDef.size; i++) {
@@ -223,7 +267,14 @@ function applyOptions(data, field, options) {
     }
 }
 
-export function readRecord(blob: Uint8Array, messageTypes, developerFields, startIndex, options, startDate, pausedTime) {
+export interface MTypeDef {
+    littleEndian: boolean;
+    globalMessageNumber: number;
+    numberOfFields: number;
+    fieldDefs: FDef[];
+}
+
+export function readRecord(blob: Uint8Array, messageTypes, developerFields, startIndex, options: FitParserOptions, startDate, pausedTime) {
     const recordHeader: number = blob[startIndex];
     let localMessageType: number = recordHeader & 15;
 
@@ -244,7 +295,7 @@ export function readRecord(blob: Uint8Array, messageTypes, developerFields, star
         const numberOfFields: number = blob[startIndex + 5];
         const numberOfDeveloperDataFields: number = hasDeveloperData ? blob[startIndex + 5 + numberOfFields * 3 + 1] : 0;
 
-        const mTypeDef = {
+        const mTypeDef: MTypeDef = {
             littleEndian: lEnd,
             globalMessageNumber: addEndian(lEnd, [blob[startIndex + 3], blob[startIndex + 4]]),
             numberOfFields: numberOfFields + numberOfDeveloperDataFields,
@@ -257,7 +308,7 @@ export function readRecord(blob: Uint8Array, messageTypes, developerFields, star
             const fDefIndex = startIndex + 6 + (i * 3);
             const baseType = blob[fDefIndex + 2];
             const { field, type } = message.getAttributes(blob[fDefIndex]);
-            const fDef = {
+            const fDef: FDef = {
                 type,
                 fDefNo: blob[fDefIndex],
                 size: blob[fDefIndex + 1],
@@ -285,7 +336,7 @@ export function readRecord(blob: Uint8Array, messageTypes, developerFields, star
 
                 const baseType: keyof typeof FIT.types.fit_base_type = devDef.fit_base_type_id;
 
-                const fDef = {
+                const fDef: FDef = {
                     type: FIT.types.fit_base_type[baseType],
                     fDefNo: fieldNum,
                     size: size,
@@ -400,7 +451,7 @@ export function getArrayBuffer(buffer: Uint8Array | ArrayBuffer): ArrayBuffer {
     return ab;
 }
 
-export function calculateCRC(blob, start, end) {
+export function calculateCRC(blob: Uint8Array, start: number, end: number): number {
     const crcTable = [
         0x0000, 0xCC01, 0xD801, 0x1400, 0xF001, 0x3C00, 0x2800, 0xE401,
         0xA001, 0x6C00, 0x7800, 0xB401, 0x5000, 0x9C01, 0x8801, 0x4400,
